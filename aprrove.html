@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leave Requests</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    }
+    .card {
+      border-radius: 1rem;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <a href="leave-request.html" class="btn btn-secondary mb-3">← Back</a>
+  <h2 class="text-center mb-4">Leave Requests</h2>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Employee</th>
+        <th>Type</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="leaveRequestsTableBody">
+
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function loadLeaveRequests() {
+    const leaveRequests = JSON.parse(localStorage.getItem("leaveRequests")) || [];
+    const tableBody = document.getElementById("leaveRequestsTableBody");
+    tableBody.innerHTML = "";
+
+    leaveRequests.forEach((req, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${req.employee}</td>
+        <td>${req.type}</td>
+        <td>${req.from}</td>
+        <td>${req.to}</td>
+        <td>${req.reason}</td>
+        <td><span class="badge ${req.status === "Approved" ? "badge-success" : req.status === "Rejected" ? "badge-danger" : "badge-warning"}">${req.status}</span></td>
+        <td>
+          <button class="btn btn-sm btn-success" onclick="updateStatus(${index}, 'Approved')">Approve</button>
+          <button class="btn btn-sm btn-danger" onclick="updateStatus(${index}, 'Rejected')">Reject</button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  function updateStatus(index, newStatus) {
+    const leaveRequests = JSON.parse(localStorage.getItem("leaveRequests")) || [];
+    if (leaveRequests[index]) {
+      leaveRequests[index].status = newStatus;
+      localStorage.setItem("leaveRequests", JSON.stringify(leaveRequests));
+      loadLeaveRequests(); // Refresh table
+    }
+  }
+
+  loadLeaveRequests();
+</script>
+</body>
+</html>

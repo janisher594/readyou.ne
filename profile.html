@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Employee Profile - HR Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .admin-dashboard {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      max-width: 1000px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-header img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-dashboard">
+    <h2 class="text-center mb-4">Employee Profile</h2>
+    <div class="profile-header mb-4">
+      <img id="employeeImage" src="" alt="Employee Profile Picture">
+      <div>
+        <h4 id="employeeName"></h4>
+        <p class="mb-1" id="employeePosition"></p>
+        <p class="text-muted" id="employeeDepartment"></p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <strong>Email:</strong> <span id="employeeEmail"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Phone:</strong> <span id="employeePhone"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Start Date:</strong> <span id="employeeStartDate"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Employee ID:</strong> <span id="employeeId"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Address:</strong> <span id="employeeAddress"></span>
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Status:</strong> <span id="employeeStatus"></span>
+      </div>
+    </div>
+
+    <div class="btn-group-profile">
+      <a href="/edit-employee.html?id=" id="editButton" class="btn btn-warning me-2">Edit Profile</a>
+      <button id="deleteButton" class="btn btn-danger">Delete Employee</button>
+    </div>
+  </div>
+
+  <script>
+    // Function to get employee ID from URL query params
+    function getEmployeeIdFromURL() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return parseInt(urlParams.get("id"), 10);
+    }
+
+    // Function to get employee by ID from localStorage
+    function getEmployeeById(id) {
+      const employees = JSON.parse(localStorage.getItem("employees")) || [];
+      return employees.find(employee => employee.id === id);
+    }
+
+    // Function to load the employee profile based on the ID in the URL
+    function loadEmployeeProfile() {
+      const employeeId = getEmployeeIdFromURL();
+      const employee = getEmployeeById(employeeId);
+
+      if (employee) {
+        document.getElementById("employeeImage").src = employee.image || "default.jpg";
+        document.getElementById("employeeName").innerText = employee.name;
+        document.getElementById("employeePosition").innerText = employee.position;
+        document.getElementById("employeeDepartment").innerText = employee.department;
+        document.getElementById("employeeEmail").innerText = employee.email || "Not Available";
+        document.getElementById("employeePhone").innerText = employee.phone || "Not Available";
+        document.getElementById("employeeStartDate").innerText = employee.startDate || "Not Available";
+        document.getElementById("employeeId").innerText = employee.id;
+        document.getElementById("employeeAddress").innerText = employee.address || "Not Available";
+        document.getElementById("employeeStatus").innerText = employee.status || "Active";
+
+        // Set edit URL
+        document.getElementById("editButton").href = `/edit-employee.html?id=${employee.id}`;
+
+        // Set up delete functionality
+        document.getElementById("deleteButton").onclick = function() {
+          if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
+            deleteEmployee(employee.id);
+          }
+        };
+      } else {
+        alert("Employee not found");
+      }
+    }
+
+    // Function to delete the employee from localStorage
+    function deleteEmployee(id) {
+      let employees = JSON.parse(localStorage.getItem("employees")) || [];
+      employees = employees.filter(employee => employee.id !== id);
+      localStorage.setItem("employees", JSON.stringify(employees));
+      alert("Employee deleted successfully");
+      window.location.href = "/dashboard.html";  // Redirect back to dashboard
+    }
+
+    // Load employee profile when the page loads
+    window.onload = loadEmployeeProfile;
+  </script>
+
+</body>
+</html>

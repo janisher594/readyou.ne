@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    }
+    .card {
+      border-radius: 1rem;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .admin-dashboard {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      max-width: 1200px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    aside.sidebar {
+      background-color: #333;
+      border-radius: 8px 0 0 8px;
+      min-width: 200px;
+      color: white;
+      padding: 20px;
+    }
+
+    aside.sidebar h2 {
+      text-align: center;
+    }
+
+    aside.sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    aside.sidebar ul li {
+      margin: 15px 0;
+    }
+
+    aside.sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px 15px;
+    }
+
+    aside.sidebar ul li a:hover {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .d-flex {
+      display: flex;
+      gap: 20px;
+    }
+
+    .section-divider {
+      margin-top: 50px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-dashboard d-flex">
+  <aside class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="aprrove.html">Leave Requests</a></li>
+      <li><a href="performance.html">Performance</a></li>
+      <li><a href="job-openings.html">Job Openings</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <h2 class="text-center">Dashboard</h2>
+
+    <!-- Leave Request Section -->
+    <div class="section-divider">
+      <h4>Submit Leave Request</h4>
+      <form id="leaveForm">
+        <div class="form-group">
+          <label for="leaveEmployee">Employee Name</label>
+          <input type="text" class="form-control" id="leaveEmployee" required />
+        </div>
+        <div class="form-group">
+          <label for="leaveType">Leave Type</label>
+          <input type="text" class="form-control" id="leaveType" required />
+        </div>
+        <div class="form-group">
+          <label for="leaveFrom">From</label>
+          <input type="date" class="form-control" id="leaveFrom" required />
+        </div>
+        <div class="form-group">
+          <label for="leaveTo">To</label>
+          <input type="date" class="form-control" id="leaveTo" required />
+        </div>
+        <div class="form-group">
+          <label for="leaveReason">Reason</label>
+          <input type="text" class="form-control" id="leaveReason" required />
+        </div>
+        <button type="submit">Submit Leave Request</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+  function logout() {
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "login.html";
+  }
+
+
+
+  const leaveForm = document.getElementById("leaveForm");
+  leaveForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const leaveEmployee = document.getElementById("leaveEmployee").value.trim();
+    const leaveType = document.getElementById("leaveType").value.trim();
+    const leaveFrom = document.getElementById("leaveFrom").value;
+    const leaveTo = document.getElementById("leaveTo").value;
+    const leaveReason = document.getElementById("leaveReason").value.trim();
+
+    const newRequest = {
+      employee: leaveEmployee,
+      type: leaveType,
+      from: leaveFrom,
+      to: leaveTo,
+      reason: leaveReason,
+      status: "Pending"
+    };
+
+    const leaveRequests = JSON.parse(localStorage.getItem("leaveRequests")) || [];
+    leaveRequests.push(newRequest);
+    localStorage.setItem("leaveRequests", JSON.stringify(leaveRequests));
+
+    leaveForm.reset();
+    alert("Leave request submitted successfully!");
+  });
+</script>
+
+</body>
+</html>

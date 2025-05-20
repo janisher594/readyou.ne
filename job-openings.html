@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Openings - HR Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    }
+    .card {
+      border-radius: 1rem;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .admin-dashboard {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      max-width: 1200px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    aside.sidebar {
+      background-color: #333;
+      border-radius: 8px 0 0 8px;
+      padding: 20px;
+      color: white;
+      height: 100vh;
+    }
+
+    aside.sidebar h2 {
+      text-align: center;
+      color: #fff;
+    }
+
+    aside.sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    aside.sidebar ul li {
+      margin: 15px 0;
+    }
+
+    aside.sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+
+    aside.sidebar ul li a:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .modal-header {
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="d-flex">
+  <aside class="sidebar">
+    <h2>HR Panel</h2>
+    <ul>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="leave-request.html">Leave Requests</a></li>
+      <li><a href="performance.html">Performance</a></li>
+      <li><a href="job-openings.html">Job Openings</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </aside>
+
+  <main class="admin-dashboard w-100">
+    <h2 class="text-center mb-4">Job Openings</h2>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Job Title</th>
+          <th>Department</th>
+          <th>Location</th>
+          <th>Posted On</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="jobTableBody">
+
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+      <button id="createJobBtn" class="btn btn-primary">Create New Job Opening</button>
+    </div>
+  </main>
+</div>
+
+<!-- Modal for Creating/Editing Job Opening -->
+<div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobModalLabel">Create/Edit Job Opening</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="jobForm">
+          <input type="hidden" id="jobIndex" />
+          <div class="mb-2">
+            <label for="jobTitle" class="form-label">Job Title</label>
+            <input type="text" class="form-control" id="jobTitle" required>
+          </div>
+          <div class="mb-2">
+            <label for="department" class="form-label">Department</label>
+            <input type="text" class="form-control" id="department" required>
+          </div>
+          <div class="mb-2">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" required>
+          </div>
+          <div class="mb-2">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" required>
+              <option value="Open">Open</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" id="saveJobBtn" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  function logout() {
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "login.html";
+  }
+
+  window.onload = function () {
+    const jobModal = new bootstrap.Modal(document.getElementById('jobModal'));
+    const jobTableBody = document.getElementById('jobTableBody');
+    const createJobBtn = document.getElementById('createJobBtn');
+    const saveJobBtn = document.getElementById('saveJobBtn');
+
+    function loadJobs() {
+      const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+      jobTableBody.innerHTML = '';
+      if (jobs.length === 0) {
+        jobTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No job openings found.</td></tr>';
+      } else {
+        jobs.forEach((job, index) => {
+          const row = `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${job.title}</td>
+              <td>${job.department}</td>
+              <td>${job.location}</td>
+              <td>${job.postedOn}</td>
+              <td><span class="badge ${job.status === 'Open' ? 'bg-success' : 'bg-danger'}">${job.status}</span></td>
+              <td class="btn-group">
+                <button class="btn btn-info btn-sm" onclick="editJob(${index})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteJob(${index})">Delete</button>
+              </td>
+            </tr>
+          `;
+          jobTableBody.innerHTML += row;
+        });
+      }
+    }
+
+    function saveJob(job, index) {
+      const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+      if (index === "" || index === undefined) {
+        jobs.push(job);
+      } else {
+        jobs[index] = job;
+      }
+      localStorage.setItem('jobs', JSON.stringify(jobs));
+      loadJobs();
+      jobModal.hide();
+    }
+
+    window.editJob = function(index) {
+      const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+      const job = jobs[index];
+      document.getElementById('jobTitle').value = job.title;
+      document.getElementById('department').value = job.department;
+      document.getElementById('location').value = job.location;
+      document.getElementById('status').value = job.status;
+      document.getElementById('jobIndex').value = index;
+      jobModal.show();
+    };
+
+    window.deleteJob = function(index) {
+      const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+      jobs.splice(index, 1);
+      localStorage.setItem('jobs', JSON.stringify(jobs));
+      loadJobs();
+    };
+
+    saveJobBtn.addEventListener('click', function () {
+      const job = {
+        title: document.getElementById('jobTitle').value.trim(),
+        department: document.getElementById('department').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        status: document.getElementById('status').value,
+        postedOn: new Date().toISOString().split('T')[0]
+      };
+      const index = document.getElementById('jobIndex').value;
+      saveJob(job, index);
+    });
+
+    createJobBtn.addEventListener('click', function () {
+      document.getElementById('jobForm').reset();
+      document.getElementById('jobIndex').value = '';
+      jobModal.show();
+    });
+
+    loadJobs();
+  };
+</script>
+
+</body>
+</html>
